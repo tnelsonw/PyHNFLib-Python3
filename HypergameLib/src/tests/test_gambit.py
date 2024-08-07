@@ -1,7 +1,7 @@
 import unittest
-import gambit
+import pygambit
 
-from HypergameLib import HNF
+from HypergameLib.src.HypergameLib import HNF
 
 
 class MyTestCase(unittest.TestCase):
@@ -10,7 +10,7 @@ class MyTestCase(unittest.TestCase):
         Hand crafted test for Desert Storm Example.
         :return:
         """
-        g = gambit.Game.new_table([6, 6])
+        g = pygambit.Game.new_table([6, 6])
         g.title = "Desert Storm Hypergame"
         g.players[0].label = "Attacker"
         g.players[1].label = "Defender"
@@ -111,8 +111,8 @@ class MyTestCase(unittest.TestCase):
         g[3, 5][1] = 2
         g[4, 5][1] = 2
         g[5, 5][1] = 1
-        print "solver"
-        solver = gambit.nash.ExternalLogitSolver()
+        print("solver")
+        solver = pygambit.nash.logit_solve(g)  # TODO: figure this out
         s = solver.solve(g)
         self.assertAlmostEqual(s[0][0], 0.1250004426696509, places=20, msg="NEMS did not match")
         self.assertAlmostEqual(s[0][1], 0.49999948506171976, places=20, msg="NEMS did not match")
@@ -140,11 +140,10 @@ class MyTestCase(unittest.TestCase):
                 self.assertTrue(columnAction in actions_in_gambit,
                                 "Column action not found in gambit game")
 
-
-
             for col_ind, colName in enumerate(DesertStormHNF.columnActionNames):
                 for row_ind, rowName in enumerate(DesertStormHNF.rowActionNames):
-                    self.assertEqual(float(game[row_ind, col_ind][0]), DesertStormHNF.costs[colName][rowName])
+                    self.assertEqual(float(game[row_ind, col_ind][game.players[0].label]), DesertStormHNF.costs[colName][rowName])
+
 
 if __name__ == '__main__':
     unittest.main()
