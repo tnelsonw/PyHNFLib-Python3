@@ -29,8 +29,8 @@ Global Random Vars:
         params:
             x: 0.0                   # false entries in sample
             M: db_size               # sample size
-            n: dec_rate * db_size    # number of false entries
-            N: exfil_rate * db_size  # number of rows exfil
+            n: int(dec_rate * db_size)    # number of false entries
+            N: int(exfil_rate * db_size)  # number of rows exfil
 
 
 Stochastic Column Player:
@@ -55,7 +55,7 @@ Stochastic Column Player:
             params:
                 loc: adv_mean_cost_per_item
                 scale: 20.0
-                size: round_exfil_rate * db_size
+                size: int(round_exfil_rate * db_size)
 
         # 3. determine how many accounts will be used without being caught
         #    This should be: hypergeom.rvs(total, total-(total*dec_rate), round_exfil_rate * total)
@@ -64,8 +64,8 @@ Stochastic Column Player:
             string: sample_hg_til_caught(M, n, N)
             params:
                 M: db_size
-                n: (1 - dec_rate) * db_size   # number of true entries
-                N: round_exfil_rate * db_size # num of exfil this round
+                n: int((1 - dec_rate) * db_size)   # number of true entries
+                N: int(round_exfil_rate * db_size) # num of exfil this round
     Result Vars:
         # 4. calculate the total losses
         total_cost:

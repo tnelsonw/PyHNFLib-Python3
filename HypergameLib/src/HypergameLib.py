@@ -3,7 +3,7 @@ Created on Oct 31, 2015
 
 @author: Christopher Gutierrez
 """
-import gambit
+import pygambit
 import pandas as pd
 import texttable as tt
 import yaml
@@ -13,8 +13,11 @@ from simpleeval import simple_eval
 from scipy.stats import hypergeom, norm
 import time
 from copy import deepcopy
+
+
 def slice_list(list, range):
     return list[0:range]
+
 
 def sample_hg_til_caught(M, n, N):
     count = 0
@@ -56,7 +59,7 @@ class HNF(object):
         GLOBAL_RAND_VARS_STRING = "string"
         GLOBAL_RAND_VARS_PARAMS = "params"
 
-        SUPPORTED_FUNCS = {"hypergeom_cdf": hypergeom.cdf, "hypergeom_rvs": hypergeom.rvs, "norm_rvs": norm.rvs, \
+        SUPPORTED_FUNCS = {"hypergeom_cdf": hypergeom.cdf, "hypergeom_rvs": hypergeom.rvs, "norm_rvs": norm.rvs,
                            "sum": sum, "slice_list": slice_list, "sample_hg_til_caught": sample_hg_til_caught}
         HYPERSTRATS = ["MO", "PS", "WS", "NEMS"]
 
@@ -76,7 +79,7 @@ class HNF(object):
             """
             with open(settings_file_name, 'r') as f:
                 # load config file
-                self.settings = yaml.load(f)
+                self.settings = yaml.load(f, yaml.Loader)
                 np.random.seed(seed=int(10000 * time.time() % 100000))
                 # get key values
                 self.sit_names = self.settings[HNF.Consts.SIT_NAMES]
@@ -111,7 +114,7 @@ class HNF(object):
                 # calc the summary and expected utility
                 self.HNFOut.init_summary_belief()
 
-                # setup the output stuff
+                # set up the output stuff
                 # self.HNFOut.situation_expected_utility()
                 # self.HNFOut.calc_hypergame_expected_utility()
                 # self.HNFOut.calc_modeling_opponent_utility()
@@ -121,8 +124,8 @@ class HNF(object):
             self.__verify_const_vars()
 
         def __init_rand_vars(self):
-                self.rand_vars = deepcopy(self.settings[HNF.Consts.GLOBAL_RAND_VARS])
-                self.__create_const_var_from_random_var(self.rand_vars)
+            self.rand_vars = deepcopy(self.settings[HNF.Consts.GLOBAL_RAND_VARS])
+            self.__create_const_var_from_random_var(self.rand_vars)
 
         def __init_sto_vars(self):
             self.sto_vars = deepcopy(self.settings[HNF.Consts.GLOBAL_STO_VARS])
@@ -164,18 +167,16 @@ class HNF(object):
             DESC: extracts cost from settings file and sets the cost in the HNF
             """
             # extract cost info from settings
-            cost_rows_row_player = deepcopy(map(lambda r: {HNF.Consts.ROW_ACTION:
-                                                      r[HNF.Consts.ROW_ACTION],
-                                                  HNF.Consts.COST_COL_ACTIONS:
-                                                      r[HNF.Consts.COST_COL_ACTIONS]},
-                                       self.settings[HNF.Consts.ROW_ACTION_COST]))
+            cost_rows_row_player = deepcopy(map(lambda r: {HNF.Consts.ROW_ACTION: r[HNF.Consts.ROW_ACTION],
+                                                           HNF.Consts.COST_COL_ACTIONS: r[HNF.Consts.COST_COL_ACTIONS]},
+                                                self.settings[HNF.Consts.ROW_ACTION_COST]))
 
             # set cost values
             for costRow in cost_rows_row_player:
                 for action in costRow[HNF.Consts.COST_COL_ACTIONS]:
                     cost = costRow[HNF.Consts.COST_COL_ACTIONS][action][HNF.Consts.ROW_COST]
                     costRow[HNF.Consts.COST_COL_ACTIONS][action][HNF.Consts.ROW_COST] = simple_eval(str(cost),
-                                                                                                names=self.const_vars)
+                                                                                                    names=self.const_vars)
                     cost = costRow[HNF.Consts.COST_COL_ACTIONS][action][HNF.Consts.COL_COST]
                     costRow[HNF.Consts.COST_COL_ACTIONS][action][HNF.Consts.COL_COST] = simple_eval(str(cost),
                                                                                                     names=self.const_vars)
@@ -240,7 +241,7 @@ class HNF(object):
                 self.const_vars[rand_var_key] = simple_eval(str(rand_var_str),
                                                             names=rand_var_params,
                                                             functions=HNF.Consts.SUPPORTED_FUNCS)
-                #print self.const_vars[rand_var_key]
+                # print(self.const_vars[rand_var_key])
 
         def __create_stochastic_column_player_vars(self):
             """
@@ -262,7 +263,7 @@ class HNF(object):
             # 3. Calc result vars
             self.__create_const_var_from_random_var(self.sto_vars[HNF.Consts.GLOBAL_STO_RESULT_VARS])
 
-            #print self.const_vars
+            # print(self.const_vars)
 
         def __verify_const_vars(self):
             for const_key in self.const_vars:
@@ -278,15 +279,14 @@ class HNF(object):
         A situational belief matrix
         """
 
-        # round the the nearest thousandth deceimal place
+        # round the nearest thousandth decimal place
         ROUND_DEC = 5
 
-        def __init__(self, situationNames, rowActionNames, columnActionNames, \
-                     name="", uncertainty=0.0):
+        def __init__(self, situationNames, rowActionNames, columnActionNames, name="", uncertainty=0.0):
             """
-            DESC: Create the index names and init the cost and situatational belief mats
+            DESC: Create the index names and init the cost and situational belief mats
             Input:
-                   sutiationNames (list) - A list strings. Each item is the name of
+                   situationNames (list) - A list strings. Each item is the name of
                       a situation in the HNF
                    rowActionNames (list) - A list of strings. Each item is the name
                       of the actions that the row player can make
@@ -302,10 +302,9 @@ class HNF(object):
                    len(columnActionNames) > 0
 
             # make sure that the names of each key is different
-            assert len(situationNames) + len(rowActionNames) + \
-                   len(columnActionNames) == len(set(situationNames)) + \
-                                             len(set(rowActionNames)) + \
-                                             len(set(columnActionNames))
+            assert (len(situationNames) + len(rowActionNames) +
+                   len(columnActionNames) == len(set(situationNames)) +
+                    len(set(rowActionNames)) + len(set(columnActionNames)))
 
             # save the names. To be used as keys in mats and vectors
             self.situationNames = situationNames
@@ -340,7 +339,7 @@ class HNF(object):
             DESC:
                 Set the current belief values.
             INPUT:
-                updatedCurrentBeilefDict (dict) - a dictionary with keys equal to
+                updatedCurrentBeliefDict (dict) - a dictionary with keys equal to
                 situation name and values summing up to 1.
                 :param updated_current_belief_dict:
             """
@@ -358,14 +357,14 @@ class HNF(object):
                 column action.
             INPUT:
                 :param action_name: the action name to be updated.
-                :param updated_dict: a dictionary with updated values. The keys must
+                :param updated_dict: a dictionary with updated values. The keys
                                      must be row or column action names and the values
                                      should be the costs
                 :param actor : must be either "row" or "column"
             """
             assert type(updated_dict) is dict
             assert action_name in self.rowActionNames or action_name in self.columnActionNames
-            assert actor is "row" or actor is "column"
+            assert actor == "row" or actor == "column"
             if action_name in self.rowActionNames:
                 # Update a defenders cost row
                 for k in updated_dict.keys():
@@ -467,9 +466,18 @@ class HNF(object):
             :param hyperstrat: a dictionary containing the prob. using a particular action
             :return:
             """
+            # hack for now
+            for k, v in expected_values.items():
+                if isinstance(v, np.float64):
+                    expected_values[k] = int(v)
+
             out_sum = 0.0
             for rowActionName in self.rowActionNames:
-                out_sum += hyperstrat[rowActionName] * expected_values[rowActionName]
+                # another hack
+                if isinstance(hyperstrat[rowActionName], tuple):
+                    out_sum += hyperstrat[rowActionName][1] * expected_values[rowActionName]
+                else:
+                    out_sum += hyperstrat[rowActionName] * expected_values[rowActionName]
             return out_sum
 
         def calc_g(self, hyperstrat):
@@ -480,7 +488,10 @@ class HNF(object):
             """
             worst = {}
             for rowActionName in self.rowActionNames:
-                worst[rowActionName] = hyperstrat[rowActionName] * self.__get_worst_case_action(rowActionName)
+                if isinstance(hyperstrat[rowActionName], tuple):
+                    worst[rowActionName] = hyperstrat[rowActionName][1] * self.__get_worst_case_action(rowActionName)
+                else:
+                    worst[rowActionName] = hyperstrat[rowActionName] * self.__get_worst_case_action(rowActionName)
             return min(worst.values())
 
         def calc_heu(self, eu, g):
@@ -496,7 +507,7 @@ class HNF(object):
             """
             Calculates the hypergame expected utility.
             :param expected_util: the expected utility function that will be transformed into a HEU vector
-                                  as descrbied in "PLANNING FOR TERRORIST-CAUSED EMERGENCIES"
+                                  as described in "PLANNING FOR TERRORIST-CAUSED EMERGENCIES"
             :return: the HEU calculated from the expected utility value
             """
             heu = dict.fromkeys(self.rowActionNames, 0.0)
@@ -509,18 +520,17 @@ class HNF(object):
 
         def calc_modeling_opponent_utility(self):
             """
-            Calculates the modeling oppenent utility value as defined below:
+            Calculates the modeling opponent utility value as defined below:
                 MO = MAX_k(S_j * u_{j,k} ) for j = 1 to n
                 for column j and row k
-            as described in "Using Hypergames to Select Plans in Adversarial Environments" by Vane et al
+            as described in "Using Hypergames to Select Plans in Adversarial Environments" by Vane et al.
             :return: the modeling opponent expected values for each action
             """
             mo_expected_util = dict.fromkeys(self.rowActionNames, 0.0)
             for rowActionName in self.rowActionNames:
                 mo_expected_util[rowActionName] = \
                     max(map(lambda col_action: self.summaryBeliefs[col_action] *
-                                               self.costs_row.loc[rowActionName][col_action],
-                            self.columnActionNames))
+                                               self.costs_row.loc[rowActionName][col_action], self.columnActionNames))
 
             max_loc = max(mo_expected_util, key=mo_expected_util.get)
             # map the results to a pure strat
@@ -542,14 +552,14 @@ class HNF(object):
 
         def calc_weighted_subgame_vector(self):
             """
-            Calcualte the "Weighted subgame" hyperstrategy.
+            Calculate the "Weighted subgame" hyperstrategy.
             :return: The expected value of the weighted subgame
             """
             out = dict.fromkeys(self.rowActionNames, 0.0)
             for sit in self.situationNames:
                 nems = self.calc_nems_expected_util(sit)
                 for rowName in self.rowActionNames:
-                    out[rowName] += self.currentBelief[sit] * nems[rowName]
+                    out[rowName] += self.currentBelief[sit] * nems[rowName][1]
             return out
 
         def print_hnf_table(self, expected_util):
@@ -583,14 +593,14 @@ class HNF(object):
 
             main_tab.add_rows(main_out_table, header=False)
             heu_tab.header(["Row Action Name", "HEU"])
-            print "Name: " + self.HNFName
-            print "Uncertainty: %f" % self.uncertainty
-            print main_tab.draw()
+            print("Name: " + self.HNFName)
+            print("Uncertainty: %f" % self.uncertainty)
+            print(main_tab.draw())
 
             results = self.calc_all_results()
             for name in HNF.Consts.HYPERSTRATS:
                 tab = self.__produce_table(name, results)
-                print tab.draw()
+                print(tab.draw())
                 # create a new table
 
         def __produce_table(self, hyperstrat_name, results):
@@ -630,6 +640,8 @@ class HNF(object):
                                                                              results["Strategy Vector"])
                 elif hyperstrat_name == "PS":
                     results["Strategy Vector"], _ = self.calc_pick_subgame_vector()
+                    for k, v in results["Strategy Vector"].items():
+                        results["Strategy Vector"][k] = float(results["Strategy Vector"][k][1])
                     results["Expected Values"] = self.calc_expected_values()
                     results["Expected Utility"] = self.calc_expected_utility(results["Expected Values"],
                                                                              results["Strategy Vector"])
@@ -641,7 +653,9 @@ class HNF(object):
                 elif hyperstrat_name == "NEMS":
                     # find the best sit
                     results["Strategy Vector"], sit = self.calc_pick_subgame_vector()
-                    #results["Expected Values"] = self.calc_nems_expected_values(sit)
+                    for k, v in results["Strategy Vector"].items():
+                        results["Strategy Vector"][k] = float(results["Strategy Vector"][k][1])
+                    # results["Expected Values"] = self.calc_nems_expected_values(sit)
                     results["Expected Utility"] = self.calc_nems_expected_value(sit)
 
                 results["Worst Case"] = self.calc_g(results["Strategy Vector"])
@@ -669,7 +683,7 @@ class HNF(object):
                     plot_data[hyperstrat_name] = [results[hyperstrat_name]["HEU"]] + plot_data[hyperstrat_name]
 
             plot_data["NEMS"] = [results["NEMS"]["Expected Utility"]] * 11
-            #print plot_data["NEMS"]
+            # print plot_data["NEMS"]
 
             for hyperstrat_name in plot_data.keys():
                 plt.plot(np.arange(0.0, 1.1, step), plot_data[hyperstrat_name], label=hyperstrat_name)
@@ -761,7 +775,7 @@ class HNF(object):
 
         def __create_gambit_game(self, situation):
             col_len = len([item for item in self.situationalBeliefs.loc[situation] if item != "X"])
-            g = gambit.Game.new_table([len(self.rowActionNames), col_len])
+            g = pygambit.Game.new_table([len(self.rowActionNames), col_len])  # TODO: this is where 6 strategies are added
             g.title = situation
             g.players[0].label = "Row Player"
             self.__set_gambit_actions(g, 0, situation)
@@ -770,10 +784,11 @@ class HNF(object):
 
             for col_ind, col_name in enumerate(col_action_names):
                 for row_ind, row_name in enumerate(self.rowActionNames):
-                    #print self.costs_row
-                    g[row_ind, col_ind][0] = int(self.costs_row[col_name][row_name])
+                    print(self.costs_row)
+                    # TODO: figure out what to do if self.costs_row returns a NaN
+                    g[row_ind, col_ind][g.players[0].label] = int(self.costs_row[col_name][row_name])
                     # hack for now
-                    g[row_ind, col_ind][1] = int(self.costs_column[col_name][row_name])
+                    g[row_ind, col_ind][g.players[1].label] = int(self.costs_column[col_name][row_name])
 
             return g
 
@@ -796,7 +811,7 @@ class HNF(object):
 
         def append_gambit_game(self, situation):
             """
-            For a given situation name (str), append the approrate gambit object
+            For a given situation name (str), append the appropriate gambit object
             into self.gambitGames.
             :param situation:
             :return:
@@ -805,13 +820,14 @@ class HNF(object):
 
         def calc_nems_expected_util(self, situation, player="Row Player"):
             game = self.gambitGames[situation]
-            solver = gambit.nash.ExternalEnumMixedSolver()
-            s = solver.solve(game)
-            # return the first nash equl.
-            return dict(zip(self.rowActionNames, s[0][player]))
+            # solver = pygambit.nash.ExternalEnumMixedSolver()
+            s = pygambit.nash.enummixed_solve(game)
+            # return the first nash equilibrium.
+            return dict(zip(self.rowActionNames, s.equilibria[0][player]))  # TODO: change last part of this line
 
         def calc_nems_expected_value(self, situation, player="Row Player"):
             game = self.gambitGames[situation]
-            solver = gambit.nash.ExternalEnumMixedSolver()
-            s = solver.solve(game)
-            return s[0]._profile.payoff(game.players[0])
+            # solver = pygambit.nash.ExternalEnumMixedSolver()
+            s = pygambit.nash.enummixed_solve(game)
+            return s.equilibria[0].payoff(game.players[0])
+            # return s[0]._profile.payoff(game.players[0])
