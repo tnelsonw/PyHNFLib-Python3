@@ -1,0 +1,147 @@
+Name: Exfil
+Situation Names: [Mandiant Report, NEMS, Definitely Exfil]
+Row Action Names: [DLP M1057, NIP M1031, Restrict web based content M1021, Disable remove feature or program M1042, Limit Hardware Install M1034]
+Column Action Names: [Exfil over web service T1567, Exfil over C2 Channel T1041, Automated Exfil T1020, Exfil over physical medium T1052, No exfil]
+
+Global Const Vars:
+    # must be floats
+    target_value: 50.0      # arbitrary value
+
+Global Random Vars:
+    mitigation_rate:
+        type: uniform
+        string: uniform(min_val, max_val)
+        params:
+            min_val: 0.51
+            max_val: 0.99
+    attack_cost:
+        type: uniform
+        string: uniform(min_val, max_val)
+        params:
+            min_val: 1.0
+            max_val: target_value           # if exceeds target value, then no incentive to attack
+    mitigation_cost:
+        type: uniform
+        string: uniform(min_val, max_val)
+        params:
+            min_val: 1.0
+            max_val: mitigation_rate * target_value     # if exceeds this value, then no incentive to defend
+
+Row Belief:
+   - Situation Name: Mandiant Report
+     Current Belief: 0.8
+     Belief for Column Action:
+       Exfil over web service T1567: 0.056              # these 5 values from M-trends 2024 report
+       Exfil over C2 Channel T1041: 0.036
+       Automated Exfil T1020: 0.011
+       Exfil over physical medium T1052: 0.002
+       No exfil: 0.895
+
+   - Situation Name: NEMS
+     Current Belief: 0.1
+     Belief for Column Action:
+       Exfil over web service T1567: 1.0
+       Exfil over C2 Channel T1041: 0.0
+       Automated Exfil T1020: 0.0
+       Exfil over physical medium T1052: 0.0
+       No exfil: 0.0
+
+   - Situation Name: Definitely Exfil
+     Current Belief: 0.1
+     Belief for Column Action:
+       Exfil over web service T1567: 0.533          # 0.056 / 0.105
+       Exfil over C2 Channel T1041: 0.343           # 0.036 / 0.105
+       Automated Exfil T1020: 0.105                 # 0.011 / 0.105
+       Exfil over physical medium T1052: 0.019      # 0.002 / 0.105
+       No exfil: 0.0
+
+Row Action Cost:
+  - Row Action: DLP M1057
+    Cost for Column Actions:
+      Exfil over web service T1567:
+        row_cost: mitigation_rate * target_value - mitigation_cost
+        col_cost: (1 - mitigation_rate) * target_value - attack_cost
+      Exfil over C2 Channel T1041:
+        row_cost: mitigation_rate * target_value - mitigation_cost
+        col_cost: (1 - mitigation_rate) * target_value - attack_cost
+      Automated Exfil T1020:
+        row_cost: -mitigation_cost
+        col_cost: target_value - attack_cost
+      Exfil over physical medium T1052:
+        row_cost: mitigation_rate * target_value - mitigation_cost
+        col_cost: (1 - mitigation_rate) * target_value - attack_cost
+      No exfil:
+        row_cost: target_value - mitigation_cost
+        col_cost: 0
+
+  - Row Action: NIP M1031
+    Cost for Column Actions:
+      Exfil over web service T1567:
+        row_cost: -mitigation_cost
+        col_cost: target_value - attack_cost
+      Exfil over C2 Channel T1041:
+        row_cost: mitigation_rate * target_value - mitigation_cost
+        col_cost: (1 - mitigation_rate) * target_value - attack_cost
+      Automated Exfil T1020:
+        row_cost: -mitigation_cost
+        col_cost: target_value - attack_cost
+      Exfil over physical medium T1052:
+        row_cost: -mitigation_cost
+        col_cost: target_value - attack_cost
+      No exfil:
+        row_cost: target_value - mitigation_cost
+        col_cost: 0
+
+  - Row Action: Restrict web based content M1021
+    Cost for Column Actions:
+      Exfil over web service T1567:
+        row_cost: mitigation_rate * target_value - mitigation_cost
+        col_cost: (1 - mitigation_rate) * target_value - attack_cost
+      Exfil over C2 Channel T1041:
+        row_cost: -mitigation_cost
+        col_cost: target_value - attack_cost
+      Automated Exfil T1020:
+        row_cost: -mitigation_cost
+        col_cost: target_value - attack_cost
+      Exfil over physical medium T1052:
+        row_cost: -mitigation_cost
+        col_cost: target_value - attack_cost
+      No exfil:
+        row_cost: target_value - mitigation_cost
+        col_cost: 0
+
+  - Row Action: Disable remove feature or program M1042
+    Cost for Column Actions:
+      Exfil over web service T1567:
+        row_cost: -mitigation_cost
+        col_cost: target_value - attack_cost
+      Exfil over C2 Channel T1041:
+        row_cost: -mitigation_cost
+        col_cost: target_value - attack_cost
+      Automated Exfil T1020:
+        row_cost: -mitigation_cost
+        col_cost: target_value - attack_cost
+      Exfil over physical medium T1052:
+        row_cost: mitigation_rate * target_value - mitigation_cost
+        col_cost: (1 - mitigation_rate) * target_value - attack_cost
+      No exfil:
+        row_cost: target_value - mitigation_cost
+        col_cost: 0
+
+  - Row Action: Limit Hardware Install M1034
+    Cost for Column Actions:
+      Exfil over web service T1567:
+        row_cost: -mitigation_cost
+        col_cost: target_value - attack_cost
+      Exfil over C2 Channel T1041:
+        row_cost: -mitigation_cost
+        col_cost: target_value - attack_cost
+      Automated Exfil T1020:
+        row_cost: -mitigation_cost
+        col_cost: target_value - attack_cost
+      Exfil over physical medium T1052:
+        row_cost: mitigation_rate * target_value - mitigation_cost
+        col_cost: (1 - mitigation_rate) * target_value - attack_cost
+      No exfil:
+        row_cost: target_value - mitigation_cost
+        col_cost: 0

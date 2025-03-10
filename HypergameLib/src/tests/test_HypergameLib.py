@@ -74,6 +74,25 @@ class Test(unittest.TestCase):
         self.assertTrue(CreditCardHNF.HNFName == "Simple Credit Card Example", "Unable to Parse name")
         print(CreditCardHNF.calc_nems_expected_util("Naive Attacker"))
 
+    def test_exfil(self):
+        """
+        Display HNF info for exfil example
+        """
+        exfil = HNF.HNFFactory("../../config/exfil").get_hnf_instance()
+        exfil.display_hnf()
+        print(exfil.gambitGames)
+
+
+    def test_privesc(self):
+        """
+        Display HNF info for privesc example
+        """
+        f = HNF.HNFFactory("../../config/priv_esc_const")
+        print(f.const_vars)
+        privesc = f.get_hnf_instance()
+        privesc.display_hnf()
+
+
 
 if __name__ == "__main__":
     # import sys;sys.argv = ['', 'Test.testName']

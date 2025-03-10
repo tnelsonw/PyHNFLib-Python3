@@ -13,6 +13,7 @@ from simpleeval import simple_eval
 from scipy.stats import hypergeom, norm
 import time
 from copy import deepcopy
+from random import uniform
 
 
 def slice_list(list, range):
@@ -60,7 +61,8 @@ class HNF(object):
         GLOBAL_RAND_VARS_PARAMS = "params"
 
         SUPPORTED_FUNCS = {"hypergeom_cdf": hypergeom.cdf, "hypergeom_rvs": hypergeom.rvs, "norm_rvs": norm.rvs,
-                           "sum": sum, "slice_list": slice_list, "sample_hg_til_caught": sample_hg_til_caught}
+                           "sum": sum, "slice_list": slice_list, "sample_hg_til_caught": sample_hg_til_caught,
+                           "uniform": uniform}
         HYPERSTRATS = ["MO", "PS", "WS", "NEMS"]
 
     class HNFFactory(object):
@@ -241,7 +243,7 @@ class HNF(object):
                 self.const_vars[rand_var_key] = simple_eval(str(rand_var_str),
                                                             names=rand_var_params,
                                                             functions=HNF.Consts.SUPPORTED_FUNCS)
-                # print(self.const_vars[rand_var_key])
+                print(self.const_vars[rand_var_key])
 
         def __create_stochastic_column_player_vars(self):
             """

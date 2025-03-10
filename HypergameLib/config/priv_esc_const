@@ -1,0 +1,182 @@
+Name: Privilege Escalation
+Situation Names: [Mandiant Report, NEMS]
+Row Action Names: [Audit M1047, Behavior Prevent Endpoint M1040, OS Config M1028, Code Signing M1045, Account Management M1026M1018, Restrict perms M1022, Software Config M1054]
+Column Action Names: [Create or Modify Sys Process T1543, Process Injection T1055, Schtask or Job T1053, Access Token Manip T1134, Boot or Logon Autostart Exec T1547, Other]
+
+Global Const Vars:
+    # must be floats
+    target_value: 50.0      # arbitrary value
+    mitigation_rate: 0.85
+    partial_mitigation_rate: 0.35
+    attack_cost: 10.0
+    mitigation_cost: 10.0
+
+
+Row Belief:
+   - Situation Name: Mandiant Report
+     Current Belief: 0.9
+     Belief for Column Action:
+       Create or Modify Sys Process T1543: 0.283              # these 5 values from M-trends 2024 report
+       Process Injection T1055: 0.251
+       Schtask or Job T1053: 0.18
+       Access Token Manip T1134: 0.137
+       Boot or Logon Autostart Exec T1547: 0.096
+       Other: 0.053
+
+   - Situation Name: NEMS
+     Current Belief: 0.1
+     Belief for Column Action:
+       Create or Modify Sys Process T1543: 0.0
+       Process Injection T1055: 1.0
+       Schtask or Job T1053: 0.0
+       Access Token Manip T1134: 0.0
+       Boot or Logon Autostart Exec T1547: 0.0
+       Other: 0.0
+
+Row Action Cost:
+  - Row Action: Audit M1047
+    Cost for Column Actions:
+      Create or Modify Sys Process T1543:
+        row_cost: mitigation_rate * target_value - mitigation_cost
+        col_cost: (1 - mitigation_rate) * target_value - attack_cost
+      Process Injection T1055:
+        row_cost: -mitigation_cost
+        col_cost: target_value - attack_cost
+      Schtask or Job T1053:
+        row_cost: mitigation_rate * target_value - mitigation_cost
+        col_cost: (1 - mitigation_rate) * target_value - attack_cost
+      Access Token Manip T1134:
+        row_cost: -mitigation_cost
+        col_cost: target_value - attack_cost
+      Boot or Logon Autostart Exec T1547:
+        row_cost: -mitigation_cost
+        col_cost: target_value - attack_cost
+      Other:
+        row_cost: partial_mitigation_rate * target_value - mitigation_cost
+        col_cost: (1 - partial_mitigation_rate) * target_value - attack_cost
+
+  - Row Action: Behavior Prevent Endpoint M1040
+    Cost for Column Actions:
+      Create or Modify Sys Process T1543:
+        row_cost: mitigation_rate * target_value - mitigation_cost
+        col_cost: (1 - mitigation_rate) * target_value - attack_cost
+      Process Injection T1055:
+        row_cost: mitigation_rate * target_value - mitigation_cost
+        col_cost: target_value - attack_cost
+      Schtask or Job T1053:
+        row_cost: -mitigation_cost
+        col_cost: target_value - attack_cost
+      Access Token Manip T1134:
+        row_cost: -mitigation_cost
+        col_cost: target_value - attack_cost
+      Boot or Logon Autostart Exec T1547:
+        row_cost: -mitigation_cost
+        col_cost: target_value - attack_cost
+      Other:
+        row_cost: partial_mitigation_rate * target_value - mitigation_cost
+        col_cost: (1 - partial_mitigation_rate) * target_value - attack_cost
+
+  - Row Action: OS Config M1028
+    Cost for Column Actions:
+      Create or Modify Sys Process T1543:
+        row_cost: mitigation_rate * target_value - mitigation_cost
+        col_cost: (1 - mitigation_rate) * target_value - attack_cost
+      Process Injection T1055:
+        row_cost: -mitigation_cost
+        col_cost: target_value - attack_cost
+      Schtask or Job T1053:
+        row_cost: mitigation_rate * target_value - mitigation_cost
+        col_cost: (1 - mitigation_rate) * target_value - attack_cost
+      Access Token Manip T1134:
+        row_cost: -mitigation_cost
+        col_cost: target_value - attack_cost
+      Boot or Logon Autostart Exec T1547:
+        row_cost: -mitigation_cost
+        col_cost: target_value - attack_cost
+      Other:
+        row_cost: partial_mitigation_rate * target_value - mitigation_cost
+        col_cost: (1 - partial_mitigation_rate) * target_value - attack_cost
+
+  - Row Action: Code Signing M1045
+    Cost for Column Actions:
+      Create or Modify Sys Process T1543:
+        row_cost: mitigation_rate * target_value - mitigation_cost
+        col_cost: (1 - mitigation_rate) * target_value - attack_cost
+      Process Injection T1055:
+        row_cost: -mitigation_cost
+        col_cost: target_value - attack_cost
+      Schtask or Job T1053:
+        row_cost: -mitigation_cost
+        col_cost: target_value - attack_cost
+      Access Token Manip T1134:
+        row_cost: -mitigation_cost
+        col_cost: target_value - attack_cost
+      Boot or Logon Autostart Exec T1547:
+        row_cost: -mitigation_cost
+        col_cost: target_value - attack_cost
+      Other:
+        row_cost: partial_mitigation_rate * target_value - mitigation_cost
+        col_cost: (1 - partial_mitigation_rate) * target_value - attack_cost
+
+  - Row Action: Account Management M1026M1018
+    Cost for Column Actions:
+      Create or Modify Sys Process T1543:
+        row_cost: mitigation_rate * target_value - mitigation_cost
+        col_cost: (1 - mitigation_rate) * target_value - attack_cost
+      Process Injection T1055:
+        row_cost: mitigation_rate * target_value - mitigation_cost
+        col_cost: (1 - mitigation_rate) * target_value - attack_cost
+      Schtask or Job T1053:
+        row_cost: mitigation_rate * target_value - mitigation_cost
+        col_cost: (1 - mitigation_rate) * target_value - attack_cost
+      Access Token Manip T1134:
+        row_cost: mitigation_rate * target_value - mitigation_cost
+        col_cost: (1 - mitigation_rate) * target_value - attack_cost
+      Boot or Logon Autostart Exec T1547:
+        row_cost: -mitigation_cost
+        col_cost: target_value - attack_cost
+      Other:
+        row_cost: partial_mitigation_rate * target_value - mitigation_cost
+        col_cost: (1 - partial_mitigation_rate) * target_value - attack_cost
+
+  - Row Action: Restrict perms M1022
+    Cost for Column Actions:
+      Create or Modify Sys Process T1543:
+        row_cost: mitigation_rate * target_value - mitigation_cost
+        col_cost: (1 - mitigation_rate) * target_value - attack_cost
+      Process Injection T1055:
+        row_cost: -mitigation_cost
+        col_cost: target_value - attack_cost
+      Schtask or Job T1053:
+        row_cost: mitigation_rate * target_value - mitigation_cost
+        col_cost: target_value - attack_cost
+      Access Token Manip T1134:
+        row_cost: -mitigation_cost
+        col_cost: target_value - attack_cost
+      Boot or Logon Autostart Exec T1547:
+        row_cost: -mitigation_cost
+        col_cost: target_value - attack_cost
+      Other:
+        row_cost: partial_mitigation_rate * target_value - mitigation_cost
+        col_cost: (1 - partial_mitigation_rate) * target_value - attack_cost
+
+  - Row Action: Software Config M1054
+    Cost for Column Actions:
+      Create or Modify Sys Process T1543:
+        row_cost: mitigation_rate * target_value - mitigation_cost
+        col_cost: (1 - mitigation_rate) * target_value - attack_cost
+      Process Injection T1055:
+        row_cost: -mitigation_cost
+        col_cost: target_value - attack_cost
+      Schtask or Job T1053:
+        row_cost: -mitigation_cost
+        col_cost: target_value - attack_cost
+      Access Token Manip T1134:
+        row_cost: -mitigation_cost
+        col_cost: target_value - attack_cost
+      Boot or Logon Autostart Exec T1547:
+        row_cost: -mitigation_cost
+        col_cost: target_value - attack_cost
+      Other:
+        row_cost: partial_mitigation_rate * target_value - mitigation_cost
+        col_cost: (1 - partial_mitigation_rate) * target_value - attack_cost
